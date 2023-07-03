@@ -20,14 +20,15 @@
 ## 环境以及安装
 **win10** **python**
 
-1、点击下面这个网页，安装miniconda也就是安装python，下载好以后安装即可，在安装时需要加入到系统环境变量，勾选下图第二个框即可。 [https://mirrors.tuna.tsinghua.edu.cn/anaconda/miniconda/Miniconda3-py310_23.3.1-0-Windows-x86_64.exe](https://mirrors.tuna.tsinghua.edu.cn/anaconda/miniconda/Miniconda3-py310_23.3.1-0-Windows-x86_64.exe)
- <img src="./showimg/miniconda.png" width="60%"/>
+1、点击下面这个网页，安装miniconda也就是安装python，下载好以后安装即可，在安装时需要加入到系统环境变量，勾选下图第二个框即可。  <br>
+ [https://mirrors.tuna.tsinghua.edu.cn/anaconda/miniconda/Miniconda3-py310_23.3.1-0-Windows-x86_64.exe](https://mirrors.tuna.tsinghua.edu.cn/anaconda/miniconda/Miniconda3-py310_23.3.1-0-Windows-x86_64.exe)
+ <img src="./showimg/miniconda.png" width="60%"/>  <br>
 2、接着需要修改python安装的路径，将msedgedriver\\.condarc这个档案放到根目录`C:\Users\username`即可，另外再打开一个cmd或者PowerShell
-运行`conda clean -i`输入`Y`即可，此时Python已经可以使用了
-<img src="./showimg/condarc.png" width="26%"/>
-3、安装Python相关的调用库，另外再打开一个cmd或者PowerShell，运行
-<code>cd C:\Users\usrname\csdn
-pip install -r .\requirement.txt</code>
+运行`conda clean -i`输入`Y`即可，此时Python已经可以使用了  <br>
+<img src="./showimg/condarc.png" width="26%"/>  <br>
+3、安装Python相关的调用库，另外再打开一个cmd或者PowerShell，运行  <br>
+<code>cd C:\Users\usrname\csdn   <br> 
+pip install -r .\requirement.txt</code>   <br>
 
 ## 使用
 ### 1、登录
