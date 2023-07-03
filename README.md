@@ -42,7 +42,7 @@ pip install -r .\requirement.txt</code>
 ### 2、爬取article
 爬取一旦开始就自动运行了，爬取窗口一般不能最小化，可以做其他事情的
 **爬取CSDN的article**
-默认的爬取每篇article的睡眠时间是**20s**以上，这边实际爬取时耗时平均是每篇 **60s**
+默认的爬取每篇article的睡眠时间是**20s**以上，这边实际爬取时耗时平均是每篇 **60s**，每个图片需要6s
 `
 python.exe crawler.py --article --csdn_person_website https://blog.csdn.net/m0_50617544?type=blog
 `
@@ -58,3 +58,10 @@ python.exe crawler.py --article --csdn_person_website https://blog.csdn.net/m0_5
 ### 爬取注意事项
 1、需要较好的网速，本机网速测验是下载100Mbps，上传60Mbps，低点也可以的，不是太慢太卡就行[https://www.speedtest.cn/](https://www.speedtest.cn/)
 2、爬取时设置了睡眠时间, 避免给CSDN服务器带来太大压力，可以日间调试好，然后深夜运行爬取人少, 给其他小伙伴更好的用户体验, 避免CSDN顺着网线过来找人，默认**6**s
+
+### blogs
+[https://www.aliyundrive.com/s/NikyVRJq8JV   阿里云分享的](https://www.aliyundrive.com/s/NikyVRJq8JV) `提取  0h3l`
+[爬取知乎发布的想法和文篇和回答](https://zhuanlan.zhihu.com/p/641141948)
+[爬取CSDN发布的文篇](https://zhuanlan.zhihu.com/p/641140892)
+[https://zoujiu.blog.csdn.net/article/details/131514422](https://zoujiu.blog.csdn.net/article/details/131514422)
+[https://zoujiu.blog.csdn.net/article/details/131521909](https://zoujiu.blog.csdn.net/article/details/131521909)
