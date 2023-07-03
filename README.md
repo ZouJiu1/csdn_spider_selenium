@@ -5,16 +5,16 @@
 保存**article**到**pdf**、**markdown**，并保存相应的图片、codes以及website，排版基本按照网页，**支持保存数学公式到markdown**
 
 ### 爬取到的article展示
-<a href="./article">点击即可进入article目录查看的</a>
-每篇article都附带了修改时间和阅读数
+<a href="./article">点击即可进入article目录查看的</a>   <br>
+每篇article都附带了修改时间和阅读数  <br>
 <img src="./showimg/article1.png" width="60%"/>
 
-<span style="color:#7a3e9d;"><b>保存到Markdown格式的数学公式、codes和图片</b></span>
-<a href="https://blog.csdn.net/m0_50617544/article/details/128998379">c++ set运算符重载</a>
-<a href="https://blog.csdn.net/m0_50617544/article/details/126692822">卷积和转置卷积矩阵计算</a>
-<img src="./showimg/article2.png" width="39%"/><img src="./showimg/article3.png" width="39%"/>
+<span style="color:#7a3e9d;"><b>保存到Markdown格式的数学公式、codes和图片</b></span>  <br>
+<a href="https://blog.csdn.net/m0_50617544/article/details/128998379">c++ set运算符重载</a>  <br>
+<a href="https://blog.csdn.net/m0_50617544/article/details/126692822">卷积和转置卷积矩阵计算</a>   <br>
+<img src="./showimg/article2.png" width="39%"/><img src="./showimg/article3.png" width="39%"/>   <br>
 
-<span style="color:#7a3e9d;"><b>保存到PDF格式的，标题下面是网址</b></span>
+<span style="color:#7a3e9d;"><b>保存到PDF格式的，标题下面是网址</b></span>   <br>
 <img src="./showimg/article5.png" width="39%"/><img src="./showimg/article4.png" width="39%"/>
 
 ## 环境以及安装
@@ -31,18 +31,18 @@ pip install -r .\requirement.txt</code>
 
 ## 使用
 ### 1、登录
-进入个人主页，先点击**个人中心**，然后点击**个人主页**，拿到个人主页的网址即可，像这里的个人地址是<a href="https://blog.csdn.net/m0_50617544">https://blog.csdn.net/m0_50617544</a>，然后加上后缀就是<b><a href="https://blog.csdn.net/m0_50617544?type=blog">https://blog.csdn.net/m0_50617544?type=blog</a></b>，用到的网址是后面这个
+进入个人主页，先点击**个人中心**，然后点击**个人主页**，拿到个人主页的网址即可，像这里的个人地址是<a href="https://blog.csdn.net/m0_50617544">https://blog.csdn.net/m0_50617544</a>，然后加上后缀就是<b><a href="https://blog.csdn.net/m0_50617544?type=blog">https://blog.csdn.net/m0_50617544?type=blog</a></b>，用到的网址是后面这个  <br>
 <img src="./showimg/center.png" width="39%"/><img src="./showimg/personpage.png" width="60%"/>
-运行以下内容，网址需要用个人的替掉，这一步是**手动**操作，需要人工输入账号和密码，然后点击登录就行，登录以后会自动保存好cookie，以后爬取时就不用重复登录了，保存的cookie在这个目录的**cookie**，产生的档案是**cookie_csdn.pkl**
- <h6><code><b style="color:#7a3e9d;">python.exe crawler.py --csdn_person_website https://blog.csdn.net/m0_50617544?type=blog</b></code></h6>
+运行以下内容，网址需要用个人的替掉，这一步是**手动**操作，需要人工输入账号和密码，然后点击登录就行，登录以后会自动保存好cookie，以后爬取时就不用重复登录了，保存的cookie在这个目录的**cookie**，产生的档案是**cookie_csdn.pkl**   <br>
+ <h6><code><b style="color:#7a3e9d;">python.exe crawler.py --csdn_person_website https://blog.csdn.net/m0_50617544?type=blog</b></code></h6>   <br>
 <span style="color:#7a3e9d;">运行以后会弹出一个浏览器，自动打开CSDN页面以后就可以开始登录，下图所示就是登录页面，三类登录方式都可以，只要能登录就行，<a style="color:black;"><b>点击登录以后，不要再操作页面，键盘或鼠标都不可以，登录时间默认给了130s时间，130秒以后会自动退出，然后查看目录cookie是否保存好cookie_csdn.pkl，保存好就可以开始爬取了。</b></a></span>
 <br>
 <img src="./showimg/login.png" width="29%"/>
 
-### 2、爬取article
-爬取一旦开始就自动运行了，爬取窗口一般不能最小化，可以做其他事情的
-**爬取CSDN的article**
-默认的爬取每篇article的睡眠时间是**20s**以上，这边实际爬取时耗时平均是每篇 **60s**，每个图片需要6s
+### 2、爬取article <br>
+爬取一旦开始就自动运行了，爬取窗口一般不能最小化，可以做其他事情的  <br>
+**爬取CSDN的article**  <br>
+默认的爬取每篇article的睡眠时间是**20s**以上，这边实际爬取时耗时平均是每篇 **60s**，每个图片需要6s  <br>
 `
 python.exe crawler.py --article --csdn_person_website https://blog.csdn.net/m0_50617544?type=blog
 `
