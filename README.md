@@ -48,7 +48,10 @@ pip install -r .\requirement.txt</code>   <br>
 ### 2、爬取article <br>
 爬取一旦开始就自动运行了，爬取窗口一般不能最小化，可以做其他事情的  <br>
 **爬取CSDN的article**  <br>
-默认的爬取每篇article的睡眠时间是**20s**以上，这边实际爬取时耗时平均是每篇 **60s**，每个图片需要6s  <br>
+默认的爬取每篇article的睡眠时间是**20s**以上，这边实际爬取时耗时平均是每篇 **60s**每个图片需要6s, --MarkDown控制是否保存markdown格式的网页内容 <br>
+
+若是PDF看起来版式太大，调小参数就可以printop.scale，不是特殊情况一般不用调整
+
 `
 python.exe crawler.py --article --csdn_person_website https://blog.csdn.net/m0_50617544?type=blog --MarkDown
 `
