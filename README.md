@@ -4,6 +4,11 @@
 ## 亮点
 保存**article**到**pdf**、**markdown**，并保存相应的图片、codes以及website，排版基本按照网页，**支持保存数学公式到markdown**
 
+## LOG
+-----------20230729 使用BeautifulSoup库来进行解析网页，使用起来更加稳定的而且排版更加贴近网页，之前是使用的selenium
+
+-----------202306 上传
+
 ### 爬取到的article展示
 <a href="./article">点击即可进入article目录查看的</a>
 每篇article都附带了修改时间和阅读数
@@ -42,9 +47,12 @@ pip install -r .\requirement.txt</code>
 ### 2、爬取article
 爬取一旦开始就自动运行了，爬取窗口一般不能最小化，可以做其他事情的
 **爬取CSDN的article**
-默认的爬取每篇article的睡眠时间是**20s**以上，这边实际爬取时耗时平均是每篇 **60s**
+默认的爬取每篇article的睡眠时间是**20s**以上，这边实际爬取时耗时平均是每篇 **60s**, --MarkDown控制是否保存markdown格式的网页内容
+
+若是PDF看起来版式太大，调小参数就可以printop.scale，不是特殊情况一般不用调整
+
 `
-python.exe crawler.py --article --csdn_person_website https://blog.csdn.net/m0_50617544?type=blog
+python.exe crawler.py --article --csdn_person_website https://blog.csdn.net/m0_50617544?type=blog --MarkDown
 `
 
 ### 又发布了一篇，只爬取写的这篇
