@@ -64,7 +64,7 @@ python.exe crawler.py --article --csdn_person_website https://blog.csdn.net/m0_5
 ### 目录
 <b>article</b>：该目录存放article的website以及爬取到的内容
 
-### 爬取注意事项
+### 注意
 1、需要较好的网速，本机网速测验是下载100Mbps，上传60Mbps，低点也可以的，不是太慢太卡就行[https://www.speedtest.cn/](https://www.speedtest.cn/)
 2、爬取时设置了睡眠时间, 避免给CSDN服务器带来太大压力，可以日间调试好，然后深夜运行爬取人少, 给其他小伙伴更好的用户体验, 避免CSDN顺着网线过来找人，默认**6**s
 
