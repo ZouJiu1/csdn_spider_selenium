@@ -236,7 +236,7 @@ def parser_beautiful(innerHTML, article, number, dircrea, bk=False, prenodes = N
             if 'href' in chi.attrs.keys():
                 linksite = chi.attrs['href']
             if linksite:
-                if article[-1]=='\n':
+                if len(article) > 0 and article[-1]=='\n':
                     article += "["+chi.text+"]"+"("+linksite + ")"
                 else:
                     article += "\n\n["+chi.text+"]"+"("+linksite + ")"
