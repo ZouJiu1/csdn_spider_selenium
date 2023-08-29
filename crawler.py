@@ -737,10 +737,19 @@ def load_cookie(driverkkk, path):
          for cookie in cookies:
              driverkkk.add_cookie(cookie)
 
-def csdn():
-    # #crawl articles links
+def downloaddriver():
+    url = "https://msedgedriver.azureedge.net/116.0.1938.62/edgedriver_win64.zip"
     if not os.path.exists(driverpath):
-        response = requests.get("https://msedgedriver.azureedge.net/114.0.1823.67/edgedriver_win64.zip")
+        ret = requests.get("https://developer.microsoft.com/en-us/microsoft-edge/tools/webdriver/")
+        ret = BeautifulSoup(ret.content, 'html.parser')
+        ddl = ret.find_all('a', class_='driver-download__link')
+        for k in ddl:
+            key = k.attrs.keys()
+            href = k.attrs['href']
+            if 'href' in key and "win64" in href:
+                url = href
+                break
+        response = requests.get(url)
         if response.status_code==200:
             with open(os.path.join(abspath, 'msedgedriver/edgedriver.zip'), 'wb') as obj:
                 obj.write(response.content)
@@ -760,8 +769,17 @@ def csdn():
                         break
                 if kk < 0:
                     break
-                
-    driver = edgeopen(driverpath, articledir)
+
+def csdn():
+    # #crawl articles links
+    try:
+        downloaddriver()
+        driver = edgeopen(driverpath, articledir)
+    except Exception as e:
+        os.remove(os.path.join(abspath, 'msedgedriver', "msedgedriver.exe"))
+        downloaddriver()
+        driver = edgeopen(driverpath, articledir)
+    
     driver.get(csdn_person_website)
     try:
         load_cookie(driver, cookie_path)
