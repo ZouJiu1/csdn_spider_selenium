@@ -297,6 +297,7 @@ def parser_beautiful(innerHTML, article, number, dircrea, bk=False, prenodes = N
                     article += "\n\n```\n" + i.text + "\n```\n\n"
             else:
                 article, number = parser_beautiful(chi, article, number, dircrea, bk, prenodes)
+                article += "\n"
     if bk:
         article += "**"
     return article, number
