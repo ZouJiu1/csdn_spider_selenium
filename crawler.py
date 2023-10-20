@@ -290,12 +290,13 @@ def parser_beautiful(innerHTML, article, number, dircrea, bk=False, prenodes = N
             except:
                 article += chi.text + "\n"
                 continue
-
         elif tag_name=="div":
             prenode = chi.find_all('code')
             if len(prenode) > 0:
                 for i in prenode:
                     article += "\n\n```\n" + i.text + "\n```\n\n"
+            else:
+                article, number = parser_beautiful(chi, article, number, dircrea, bk, prenodes)
     if bk:
         article += "**"
     return article, number
