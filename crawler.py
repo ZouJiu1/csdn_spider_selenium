@@ -261,6 +261,8 @@ def parser_beautiful(innerHTML, article, number, dircrea, bk=False, prenodes = N
             if alt!=None:
                 while len(alt) > 0 and alt[-1]==" ":
                     alt = alt[:-1]
+                while len(alt) > 0 and alt[0]==" ":
+                    alt = alt[1:]
                 if len(alt) > 0:
                     if article[-3-1:]=='<br>' or article[-1:]=='\n':
                         article += "\n$" + alt + "$"
