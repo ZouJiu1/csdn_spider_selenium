@@ -790,7 +790,12 @@ def csdn():
     driver.get(csdn_person_website)
     try:
         load_cookie(driver, cookie_path)
-    except:
+    except Exception as e:
+        if os.path.exists(cookie_path):
+            os.remove(cookie_path)
+            print("浏览器cookie失效了，删除了之前的cookie，需要再次登录并保存cookie。")
+        else:
+            print("需要登陆并保存cookie，下次就不用登录了。")
         crawlsleep(130)
         # WebDriverWait(driver, timeout=60).until(lambda d: len(d.find_elements(By.CLASS_NAME, "toolbar-subMenu-box")) > 1)
         save_cookie(driver, cookie_path)
