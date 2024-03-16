@@ -40,7 +40,7 @@ pip install -r .\requirement.txt</code>   <br>
 进入个人主页，先点击**个人中心**，然后点击**个人主页**，拿到个人主页的网址即可，像这里的个人地址是<a href="https://blog.csdn.net/m0_50617544">https://blog.csdn.net/m0_50617544</a>，然后加上后缀就是<b><a href="https://blog.csdn.net/m0_50617544?type=blog">https://blog.csdn.net/m0_50617544?type=blog</a></b>，用到的网址是后面这个  <br>
 <img src="./showimg/center.png" width="39%"/><img src="./showimg/personpage.png" width="60%"/>
 运行以下内容，网址需要用个人的替掉，这一步是**手动**操作，需要人工输入账号和密码，然后点击登录就行，登录以后会自动保存好cookie，以后爬取时就不用重复登录了，保存的cookie在这个目录的**cookie**，产生的档案是**cookie_csdn.pkl**   <br>
- <h6><code><b style="color:#7a3e9d;">python.exe crawler.py --csdn_person_website https://blog.csdn.net/m0_50617544?type=blog</b></code></h6>   <br>
+ <h6><code><b style="color:#7a3e9d;">python crawler.py --csdn_person_website https://blog.csdn.net/m0_50617544?type=blog</b></code></h6>   <br>
 <span style="color:#7a3e9d;">运行以后会弹出一个浏览器，自动打开CSDN页面以后就可以开始登录，下图所示就是登录页面，三类登录方式都可以，只要能登录就行，<a style="color:black;"><b>点击登录以后，不要再操作页面，键盘或鼠标都不可以，登录时间默认给了130s时间，130秒以后会自动退出，然后查看目录cookie是否保存好cookie_csdn.pkl，保存好就可以开始爬取了。</b></a></span>
 <br>
 <img src="./showimg/login.png" width="29%"/>
@@ -53,13 +53,33 @@ pip install -r .\requirement.txt</code>   <br>
 若是PDF看起来版式太大，调小参数就可以printop.scale，不是特殊情况一般不用调整
 
 `
-python.exe crawler.py --article --csdn_person_website https://blog.csdn.net/m0_50617544?type=blog --MarkDown
+python crawler.py --article --csdn_person_website https://blog.csdn.net/m0_50617544?type=blog --MarkDown --links_scratch
 `
 
+### 参数详细解释
+--links_scratch：重命名*.txt，然后爬取所有的article链接+标题。article\article.txt保存了链接和标题
+--MarkDown：保存markdown格式的article或者回答的
+--article：是否爬取article的
+<br><br>
+所以，爬取所有的article的链接，需要加--links_scratch，会重命名article.txt，然后生成article.txt，并爬取txt的网址
+```
+python crawler.py --article --MarkDown  --links_scratch --csdn_person_website https://blog.csdn.net/m0_50617544?type=blog
+```
+
+直接爬取当前article.txt的网址，则需要删除--links_scratch
+```
+python crawler.py --article --MarkDown --csdn_person_website https://blog.csdn.net/m0_50617544?type=blog
+```
 ### 又发布了一篇，只爬取写的这篇
-第一次可以全部爬取，等所有article都已经爬取好以后，此时若是又写了一篇或者几篇article，而且想爬取到本地，可以将<b>article/article.txt</b>这个档案重命名到<b>article/article_2023_06_20.txt</b>，然后将写好的article的网址和标题按照之前档案的格式再create一个article.txt档案，运行爬取程序就可以了的，此时只会爬取article.txt的网址<img src="./showimg/add1.png" width="90%"/>
+第一次可以全部爬取，等所有article都已经爬取好以后，此时若是又写了一篇或者几篇article，而且想爬取到本地，可以将<b>article/article.txt</b>这个档案重命名到<b>article/article_2023_06_20.txt</b>，然后将写好的article的网址和标题按照之前档案的格式再create一个article.txt档案，运行爬取程序就可以了的，<b>此时需要去掉选项--links_scratch避免爬取所有链接</b>，此时只会爬取article.txt的网址<img src="./showimg/add1.png" width="90%"/>
 <br>
-若是过了很长时间，发布了很多篇，此时一篇一篇加入不太方便，可以直接将<b>article/article.txt</b>这个档案重命名到<b>article/article_2023_06_20.txt</b>，然后运行爬取程序即可，上面提到了已经爬取过的不会重复爬取，所以实际只会爬取最近写好的article。
+也就是
+
+```
+python crawler.py --answer --MarkDown
+```
+<br>
+若是过了很长很长时间，发布了很多篇，此时一篇一篇加入不太方便，可以直接将<b>article/article.txt</b>这个档案重命名到<b>article/article_2023_06_20.txt</b>，然后运行爬取程序即可，<b>需要加入选项--links_scratch爬取所有链接</b>，上面提到了已经爬取过的不会重复爬取，所以实际只会爬取最近写好的article。
 
 ### 目录
 <b>article</b>：该目录存放article的website以及爬取到的内容

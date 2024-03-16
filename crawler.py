@@ -142,9 +142,9 @@ def crawl_article_links(driver:webdriver):
         title = at.find_element(By.CLASS_NAME, 'blog-list-box-top').text
         title = title.replace(":", "_").replace("?", ";"). \
                 replace("/","_").replace("\\","_").replace("\"", "_").\
-                replace("*","_").replace("|", "_").replace(" ", "_").replace("？", "").replace("！", "")
+                replace("*","_").replace("|", "_").replace("？", "").replace("！", "")
         viewme = at.find_element(By.CLASS_NAME, "view-time-box").text
-        viewme = viewme[2+3:].replace(" ", "_").replace(".", "_").replace(":", "_")[:-2]
+        viewme = viewme[2+3:].replace(".", "_").replace(":", "_")[:-2]
         readnum = at.find_element(By.CLASS_NAME, "view-num").text
         readnum = readnum.split(" ")[0]
         all_article_detail[viewme+"_"+str(title)+"_"+readnum] = href
@@ -257,7 +257,10 @@ def parser_beautiful(innerHTML, article, number, dircrea, bk=False, prenodes = N
             imglink = chi.attrs["src"]
             if imglink==None:
                 return article, number
-            alt = chi.attrs["alt"]
+            if 'alt' in chi.attrs.keys():
+                alt = chi.attrs["alt"]
+            else:
+                return article, number
             if alt!=None:
                 while len(alt) > 0 and alt[-1]==" ":
                     alt = alt[:-1]
@@ -552,7 +555,7 @@ def crawl_article_detail(driver:webdriver):
             i = i.strip()
             ind = i.index(" ")
             website = i[:ind]
-            title   = i[ind+1:].replace(" ", "_").replace("\n", "")
+            title   = i[ind+1:].replace("\n", "")
             website_col[website] = title
 
     allbegin = now()
@@ -561,7 +564,7 @@ def crawl_article_detail(driver:webdriver):
         begin = now()
         nam = title.replace(":", "_").replace("?", ";"). \
                     replace("/","_").replace("\\","_").replace("\"", "_").\
-                    replace("*","_").replace("|", "_").replace(" ", "_").replace("？", "").replace("！", "").\
+                    replace("*","_").replace("|", "_").replace("？", "").replace("！", "").\
                     replace("<", "小于").replace(">", "大于").replace("(", "").\
                     replace(")", "")
         if len(nam) > 200:
@@ -590,7 +593,7 @@ def crawl_article_detail(driver:webdriver):
 
         #get article text
         driver.get(website)
-        WebDriverWait(driver, timeout=10).until(lambda d: d.find_element(By.CLASS_NAME, "more-toolbox-new"))
+        WebDriverWait(driver, timeout=20).until(lambda d: d.find_element(By.CLASS_NAME, "more-toolbox-new"))
         # driver.maximize_window()
         #https://stackoverflow.com/questions/61877719/how-to-get-current-scroll-height-in-selenium-pythonblog-content-box
         scrollHeight = driver.execute_script('''return document.getElementsByClassName("blog-content-box")[0].scrollHeight''')
@@ -637,27 +640,30 @@ def crawl_article_detail(driver:webdriver):
             
             if len(article) > 0:
                 try:
-                    f=open(os.path.join(dircrea, nam + "_formula_" + ".md"), 'w', encoding='utf-8')
+                    f=open(os.path.join(dircrea, nam + ".md"), 'w', encoding='utf-8')
                     f.close()
                 except:
                     nam = nam[:len(nam)//2]
                     # dircrea  = os.path.join(articledir, temp_name[:len(temp_name)//2])
                     # nam = nam[:len(nam)//2]
                     # os.makedirs(dircrea)
-                with open(os.path.join(dircrea, nam + "_formula_" + ".md"), 'w', encoding='utf-8') as obj:
+                with open(os.path.join(dircrea, nam + ".md"), 'w', encoding='utf-8') as obj:
                     obj.write("# " + tle+"\n\n")
                     if len(article) > 0:
                         obj.write(article + "\n\n\n")
 
-        # article to pdf 
-        rek = driver.find_element(By.XPATH, "//*[@id=\"mainBox\"]/main/div[1]/div[1]/div/div[2]/div[1]/div/span[1]")
+        # article to pdf
+        try:
+            rek = driver.find_element(By.XPATH, "//*[@id=\"mainBox\"]/main/div[1]/div[1]/div/div[2]/div[1]/div/span[1]")
+        except:
+            rek = "-"
         try:
             clocktxt = re.search("\d+-\d+-\d+ \d+:\d+:\d+", rek.text)[0]
         except:
             clocktxt = nam[:10]
         removeelement(driver)
         crawlsleep(1)
-        clock = clocktxt.replace(" ", "_").replace(":", "_")
+        clock = clocktxt.replace(":", "_")
         pagetopdf(driver, dircrea, temp_name, nam, articledir, url, Created=clock)
         
         crawlsleep(sleeptime)
@@ -715,7 +721,7 @@ def pagetopdf(driver, dircrea, temp_name, nam, destdir, url, Created=""):
         #                 pass
     
     # driver.execute_script('window.print();')
-    clock = Created    #clocktxt.text[3+1:].replace(" ", "_").replace(":", "_")
+    clock = Created    #clocktxt.text[3+1:].replace(":", "_")
     with open(os.path.join(dircrea, clock+".txt"), 'w', encoding='utf-8') as obj:
         obj.write(clock+"\n")
         obj.write(url)
@@ -863,6 +869,6 @@ if __name__ == "__main__":
     # crawl_article = True
     # MarkDown_FORMAT = True
     # crawl_links_scratch = False
-    # python.exe c:/Users/10696/Desktop/access/zhihu/crawler.py --article --MarkDown
+    # python crawler.py --article --MarkDown --links_scratch
     csdn()
     logfp.close()
