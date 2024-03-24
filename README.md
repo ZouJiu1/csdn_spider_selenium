@@ -58,7 +58,9 @@ python crawler.py --article --csdn_person_website https://blog.csdn.net/m0_50617
 
 ### 参数详细解释
 --links_scratch：重命名*.txt，然后爬取所有的article链接+标题。article\article.txt保存了链接和标题
+
 --MarkDown：保存markdown格式的article或者回答的
+
 --article：是否爬取article的
 <br><br>
 所以，爬取所有的article的链接，需要加--links_scratch，会重命名article.txt，然后生成article.txt，并爬取txt的网址
