@@ -52,9 +52,9 @@ pip install -r .\requirement.txt</code>   <br>
 
 若是PDF看起来版式太大，调小参数就可以printop.scale，不是特殊情况一般不用调整
 
-`
+```Bash []
 python crawler.py --article --csdn_person_website https://blog.csdn.net/m0_50617544?type=blog --MarkDown --links_scratch
-`
+```
 
 ### 参数详细解释
 --links_scratch：重命名*.txt，然后爬取所有的article链接+标题。article\article.txt保存了链接和标题
@@ -64,12 +64,14 @@ python crawler.py --article --csdn_person_website https://blog.csdn.net/m0_50617
 --article：是否爬取article的
 <br><br>
 所以，爬取所有的article的链接，需要加--links_scratch，会重命名article.txt，然后生成article.txt，并爬取txt的网址
-```
+
+```Bash []
 python crawler.py --article --MarkDown  --links_scratch --csdn_person_website https://blog.csdn.net/m0_50617544?type=blog
 ```
 
 直接爬取当前article.txt的网址，则需要删除--links_scratch
-```
+
+```Bash []
 python crawler.py --article --MarkDown --csdn_person_website https://blog.csdn.net/m0_50617544?type=blog
 ```
 ### 又发布了一篇，只爬取写的这篇
@@ -77,7 +79,7 @@ python crawler.py --article --MarkDown --csdn_person_website https://blog.csdn.n
 <br>
 也就是
 
-```
+```Bash []
 python crawler.py --answer --MarkDown
 ```
 <br>
