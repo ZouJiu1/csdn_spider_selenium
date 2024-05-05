@@ -1,8 +1,15 @@
 # 爬取CSDN的内容
 考虑到将写的内容爬取下来，保存起来的避免误删，算是个备份的，而且方便查找，阅读起来也更方便，使用起来也好很多 
- 
+
 ## 亮点
 保存**article**到**pdf**、**markdown**，并保存相应的图片、codes以及website，排版基本按照网页，**支持保存数学公式到markdown**
+
+### 反爬
+详见blog，codes延长了休眠时间，每个article爬取以后统一休眠30秒。
+
+[cloudflare反爬，使用Selenium爬取的网址被cloudflare保护起来了的](https://zhuanlan.zhihu.com/p/696038290)
+
+[cloudflare反爬，使用Selenium爬取的网址被cloudflare保护起来了的](https://blog.csdn.net/m0_50617544/article/details/138469662?csdn_share_tail=%7B%22type%22%3A%22blog%22%2C%22rType%22%3A%22article%22%2C%22rId%22%3A%22138469662%22%2C%22source%22%3A%22m0_50617544%22%7D)
 
 ## LOG
 -----------20230729 使用beautifulsoup库来进行解析网页，使用起来更加稳定的而且排版更加贴近网页，之前是使用的selenium

@@ -29,6 +29,7 @@ import base64
 import re
 from zipfile import ZipFile
 from bs4 import BeautifulSoup
+import shutil
 
 abspath = os.path.abspath(__file__)
 filename = abspath.split(os.sep)[-1]
@@ -39,7 +40,28 @@ sys.path.append(abspath)
 # wkhtmltopdf_path = os.path.join(abspath, r'wkhtmltopdf\bin\wkhtmltopdf.exe')
 # sys.path.append(wkhtmltopdf_path)
 
+def find_userDataDir():
+    cdi = r'C:\Users'
+    userDataDir = r'''C:\Users\10696\AppData\Local\Microsoft\Edge\User Data'''
+    for i in os.listdir(cdi):
+        nowpth = userDataDir.replace(r"10696", i)
+        if os.path.exists(nowpth):
+            cppath = nowpth.replace(r'''User Data''', "UserData1")
+            if not os.path.exists(cppath):
+                try:
+                    shutil.copytree(nowpth, cppath,dirs_exist_ok=True)
+                except:
+                    with open(verify_txt, 'w', encoding='utf-8') as obj:
+                        obj.write("1\n")
+                        obj.write(userDataDir+"\n")
+                    print("需要关闭浏览器，否则没有权限复制目录和文件")
+                    raise PermissionError
+            return cppath
+    raise FileNotFoundError(userDataDir)
+
 def edgeopen(driverpath, pdfpath):
+    global human_verify
+    # driverpath = r'''C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe'''
     service=Service(executable_path=driverpath)
     edge_options = EdgeOptions()
 
@@ -49,6 +71,27 @@ def edgeopen(driverpath, pdfpath):
     edge_options.add_argument('lang=zh-CN,zh,zh-TW,en-US,en')
     # edge_options.add_argument('--window-size=1920,1080')
     edge_options.add_argument('--disable-gpu')
+    edge_options.add_argument('--disable-dev-shm-usage')
+    edge_options.add_argument('--remote-debugging-port=9222')
+    if human_verify:
+        userDataDir = find_userDataDir()
+        print("---------------------------------------------")
+        print("---------------------------------------------")
+        print("---------------------------------------------")
+        print("被网站屏蔽了，不允许登录，采用另一种登录方式")
+        print("被复制的文件夹路径在：")
+        print(f"{userDataDir}")
+        print("占用的磁盘空间还请自行查看")
+        print("下面需要登录并保存cookie")
+        # print("需要在浏览器设置里面，选择自己的账户")
+        # userDataDir = r'''C:\Users\10696\AppData\Local\Microsoft\Edge\UserData1'''
+        # profileDir = r'''Profile 2'''  # 浏览器内的第几个账户，从1开始
+        edge_options.add_argument(f"--user-data-dir={userDataDir}")
+        # edge_options.add_argument(f"--profile-directory=.")
+        with open(verify_txt, 'w', encoding='utf-8') as obj:
+            obj.write("1\n")
+            obj.write(userDataDir+"\n")
+    # edge_options.add_argument("--headless")
     # edge_options.add_argument('start-maxmized')
     edge_options.add_argument("disable-blink-features=AutomationControlled")#就是这一行告诉chrome去掉了webdriver痕迹
     
@@ -98,18 +141,28 @@ def edgeopen(driverpath, pdfpath):
     # edge_options.add_argument(page_load_strategy, 'normal')
     # if strategy:
     edge_options.page_load_strategy = 'normal'
+    # edge_options.use_chromium = True
     # cap = DesiredCapabilities.EDGE
     # cap['pageLoadStrategy'] = 'none'
     
     driver = webdriver.Edge(options=edge_options, service = service)
+    # stealth(driver,
+    #         languages=["en-US", "en"],
+    #         vendor="Google Inc.",
+    #         platform="Win32",
+    #         webgl_vendor="Intel Inc.",
+    #         renderer="Intel Iris OpenGL Engine",
+    #         fix_hairline=True,
+    #         )
     driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
-    driver.execute_cdp_cmd('Network.setUserAgentOverride', {"userAgent": 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.53 Safari/537.36'})
+    import numpy as np
+    driver.execute_cdp_cmd('Network.setUserAgentOverride', {"userAgent": 'Mozilla/6.0 (Windows NT 11.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4103.53 Safari/600.36' + str(np.random.randint(1, 100000))})
     driver.set_script_timeout(130)
     
     return driver
 
 def crawlsleep(times):
-    time.sleep(times)
+    time.sleep(times + 1)
 
 def now():
     return time.time()
@@ -176,6 +229,8 @@ def parser_beautiful(innerHTML, article, number, dircrea, bk=False, prenodes = N
     for chi in innerHTML.children:
         # article, number = parser_beautiful(chi, article, number, dircrea, bk, prenodes)
         tag_name = chi.name
+        if chi=='\n':
+            continue
         if isinstance(chi, str):
             article += chi.text
             continue
@@ -183,8 +238,13 @@ def parser_beautiful(innerHTML, article, number, dircrea, bk=False, prenodes = N
             cll = [c for c in chi.children]
         if tag_name in ['table', 'tbody', 'tr', 'td', 'u', 'em', "article", 'pre']:
             article, number = parser_beautiful(chi, article, number, dircrea, bk, prenodes)
+        elif tag_name=="li":
+            article += chi.text
         elif tag_name=="blockquote":
-            article += "\n\n```\n" + chi.text + "\n```\n\n"
+            if len(cll) > 1:
+                article, number = parser_beautiful(chi, article, number, dircrea, True, prenodes)
+            else:
+                article += "\n\n```text []\n" + chi.text + "\n```\n\n"
         elif tag_name=="br":
             article += "\n"
         elif tag_name=="p":
@@ -288,9 +348,20 @@ def parser_beautiful(innerHTML, article, number, dircrea, bk=False, prenodes = N
         elif tag_name=="code":
             try:
                 pn = prenodes[num_prenodes]
+                codelan = pn.find_elements(By.TAG_NAME, "code")
+                if len(codelan) > 0:
+                    lan = codelan[0].get_attribute("class")
+                    language = "text"
+                # if 'class' in pn.attrs.keys():
+                    # lan = pn.attrs['class']
+                    if len(lan)>0:
+                        if 'language-' in lan:
+                            language = lan.split(" ")[1].split("-")[-1]
                 text = pn.text
+                ind = text.index("\n1\n2")
+                text = text[:ind]
                 text = re.sub(r"\n\d", "", str(text))
-                article += "\n\n```\n" + text + "\n```\n\n"
+                article += "\n\n```%s []\n"%language + text + "\n```\n\n"
                 num_prenodes += 1
             except:
                 article += chi.text + "\n"
@@ -305,6 +376,9 @@ def parser_beautiful(innerHTML, article, number, dircrea, bk=False, prenodes = N
                 article += "\n\n"
     if bk:
         article += "**"
+    article = article.replace("\n\n\n\n\n", "\n\n")
+    article = article.replace("\n\n\n\n", "\n\n")
+    article = article.replace("\n\n\n", "\n\n")
     return article, number
 
 def recursion(nod, article, number, driver, dircrea):
@@ -678,7 +752,7 @@ def crawl_article_detail(driver:webdriver):
         logfp.write("爬取一篇article耗时：" +title+" "+ str(round(end - begin, 3)) + "\n")
         numberpage += 1
 
-        # crawlsleep(600)
+        crawlsleep(30)
 
     allend = now()
     print("平均爬取一篇article耗时：", round((allend - allbegin) / numberpage, 3))
@@ -785,8 +859,13 @@ def downloaddriver():
                 if kk < 0:
                     break
 
+number = 0
 def csdn():
     # #crawl articles links
+    # downloaddriver()
+    global human_verify, number
+    if number==2:
+        return
     try:
         downloaddriver()
         driver = edgeopen(driverpath, articledir)
@@ -794,19 +873,92 @@ def csdn():
         os.remove(os.path.join(abspath, 'msedgedriver', "msedgedriver.exe"))
         downloaddriver()
         driver = edgeopen(driverpath, articledir)
-    
+        
     driver.get(csdn_person_website)
     try:
+        if not os.path.exists(cookie_path):
+            assert 1==0
         load_cookie(driver, cookie_path)
+        driver.refresh()
+        html = driver.find_element(By.TAG_NAME, "html").text
+        if '真人' in html:
+            human_verify = True
+            number += 1
+            driver.quit()
+            print("被网站屏蔽了，不允许登录，所以需要采用另一种登录方式，需要额外的磁盘空间，需要用到edge浏览器")
+            csdn()
+            return
+
     except Exception as e:
         if os.path.exists(cookie_path):
             os.remove(cookie_path)
             print("浏览器cookie失效了，删除了之前的cookie，需要再次登录并保存cookie。")
         else:
             print("需要登陆并保存cookie，下次就不用登录了。")
-        crawlsleep(130)
-        # WebDriverWait(driver, timeout=60).until(lambda d: len(d.find_elements(By.CLASS_NAME, "toolbar-subMenu-box")) > 1)
+        hasAvatar = driver.find_elements(By.CLASS_NAME, "hasAvatar")
+        if len(hasAvatar) > 0:
+            save_cookie(driver, cookie_path)
+            driver.quit()
+            print("cookie 已经保存好了的")
+            exit(0)
+        original_window = driver.current_window_handle
+        driver.switch_to.new_window('tab')
+        new_window = driver.current_window_handle
+        driver.switch_to.window(original_window)
+        driver.close()
+        driver.switch_to.window(new_window)
+        # driver.quit()
+        # driver = edgeopen(driverpath, articledir)
+        crawlsleep(3)
+        driver.get(r'https://passport.csdn.net/login?code=applets')
+        crawlsleep(6)
+        html = driver.find_element(By.TAG_NAME, "html").text
+        url = driver.current_url
+        if '密码登录' in html or 'passport' not in url:
+            human_verify = False
+        else:
+            human_verify = True
+        # if not human_verify:
+            # login = driver.find_elements(By.CLASS_NAME, "toolbar-btn-loginfun")
+            # if len(login)==0:
+            #     driver.refresh()
+            #     html = driver.find_element(By.TAG_NAME, "html").text
+            #     if '正在验证您是否是真人。这可能需要几秒钟时间' in html:
+            #         human_verify = True
+            #         csdn()
+            #         return
+            # else:
+            #     login = login[0]
+            # ActionChains(driver).click(login).perform()
+            # WebDriverWait(driver, 20).until(EC.visibility_of_element_located((By.CLASS_NAME, r'passport-login-container')))
+            # login_box = driver.find_element(By.CLASS_NAME, "passport-login-container")
+            # iframe = login_box.find_element(By.TAG_NAME, "iframe")
+            # driver.switch_to.frame(iframe)
+            # WebDriverWait(driver, 20).until(EC.visibility_of_element_located((By.ID, r'sub-frame-error-details')))
+            # # document = driver.execute_script("return document")
+            # login_error = driver.find_elements(By.ID, r'sub-frame-error-details')
+            # if len(login_error)!=0:
+            #     human_verify = True
+            # driver.switch_to.default_content()
+        if human_verify:
+            driver.quit()
+            number += 1
+            print("被网站屏蔽了，不允许登录，所以需要采用另一种登录方式，需要额外的磁盘空间，需要用到edge浏览器")
+            csdn()
+            return
+        crawlsleep(30)
+        driver.refresh()
+        html = driver.find_element(By.TAG_NAME, "html").text
+        if '真人' in html:
+            driver.quit()
+            human_verify = True
+            number += 1
+            print("被网站屏蔽了，不允许登录，所以需要采用另一种登录方式，需要额外的磁盘空间，需要用到edge浏览器")
+            csdn()
+            return
+        WebDriverWait(driver, timeout=60).until(lambda d: len(d.find_elements(By.CLASS_NAME, "toolbar-subMenu-box")) > 1)
         save_cookie(driver, cookie_path)
+        print("cookie 已经保存好了的")
         driver.quit()
         exit(0)
 
@@ -830,6 +982,18 @@ if __name__ == "__main__":
     #version four.one_zero.zero
     driverpath = os.path.join(abspath, 'msedgedriver\msedgedriver.exe')
     savepath = deepcopy(abspath)
+    verify_txt = os.path.join(savepath, r'verify.txt')
+    human_verify = False
+    if os.path.exists(verify_txt):
+        with open(verify_txt, 'r', encoding='utf-8') as obj:
+            k = obj.readline()
+            if '0' in k or 'n' in k or 'N' in k or len(k)==0:
+                human_verify = False
+            else:
+                human_verify = True
+    else:
+        with open(verify_txt, 'w', encoding='utf-8') as obj:
+            obj.write("0\n")
     cookiedir = os.path.join(savepath, 'cookie')
     articledir = os.path.join(savepath, 'article')
     logdir = os.path.join(savepath, 'log')
