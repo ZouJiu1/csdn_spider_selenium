@@ -781,14 +781,14 @@ def crawl_article_detail(driver:webdriver):
             
             if len(article) > 0:
                 try:
-                    f=open(os.path.join(dircrea, nam + ".md"), 'w', encoding='utf-8')
+                    f=open(os.path.join(dircrea, nam[:3] + ".md"), 'w', encoding='utf-8')
                     f.close()
                 except:
                     nam = nam[:len(nam)//2]
                     # dircrea  = os.path.join(articledir, temp_name[:len(temp_name)//2])
                     # nam = nam[:len(nam)//2]
                     # os.makedirs(dircrea)
-                with open(os.path.join(dircrea, nam + ".md"), 'w', encoding='utf-8') as obj:
+                with open(os.path.join(dircrea, nam[:3] + ".md"), 'w', encoding='utf-8') as obj:
                     obj.write("# " + tle+"\n\n")
                     if len(article) > 0:
                         obj.write(article + "\n\n\n")
@@ -845,7 +845,7 @@ def pagetopdf(driver, dircrea, temp_name, nam, destdir, url, Created=""):
     printop.scale = 1.0
     try:
         pdf = driver.print_page(print_options=printop)
-        with open(os.path.join(dircrea, nam + ".pdf"), 'wb') as obj:
+        with open(os.path.join(dircrea, nam[:-3] + ".pdf"), 'wb') as obj:
             obj.write(base64.b64decode(pdf))
     except:
         pass
