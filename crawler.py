@@ -845,7 +845,7 @@ def pagetopdf(driver, dircrea, temp_name, nam, destdir, url, Created=""):
     printop.scale = 1.0
     try:
         pdf = driver.print_page(print_options=printop)
-        with open(os.path.join(dircrea, nam[:-3] + ".pdf"), 'wb') as obj:
+        with open(os.path.join(dircrea, nam[:3] + ".pdf"), 'wb') as obj:
             obj.write(base64.b64decode(pdf))
     except:
         pass
