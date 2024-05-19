@@ -50,7 +50,7 @@ def find_userDataDir():
         nowpth = userDataDir.replace(r"10696", i)
         if os.path.exists(nowpth):
             cppath = nowpth.replace(r'''User Data''', "UserData1")
-            if copyed:
+            if os.path.exists(cppath) and copyed:
                 return cppath
             if os.path.exists(cppath):
                 shutil.rmtree(cppath)
@@ -201,9 +201,12 @@ def old_crawl_article_links(driver:webdriver):
     for at in article:
         href = at.find_element(By.TAG_NAME, 'a').get_attribute('href')
         title = at.find_element(By.CLASS_NAME, 'blog-list-box-top').text
-        title = title.replace(":", "_").replace("?", ";"). \
-                replace("/","_").replace("\\","_").replace("\"", "_").\
-                replace("*","_").replace("|", "_").replace("？", "").replace("！", "")
+        nam = title.replace(":", "_").replace("?", "_问号_"). \
+                    replace("/","_").replace("\\","_").replace("\"", "_").\
+                    replace("*","_").replace("|", "_").replace("？", "_问号_").replace("！", "_感叹号_").\
+                    replace("<", "小于").replace(">", "大于").replace("(", "").\
+                    replace(")", "").replace(",", "_逗号_").replace("，", "_逗号_").replace("   ", "_空格_").\
+                    replace("  ", "_空格_").replace(" ", "_空格_").replace("：", "_冒号_")
         viewme = at.find_element(By.CLASS_NAME, "view-time-box").text
         viewme = viewme[2+3:].replace(".", "_").replace(":", "_")[:-2]
         readnum = at.find_element(By.CLASS_NAME, "view-num").text
@@ -682,11 +685,12 @@ def crawl_article_detail(driver:webdriver):
     numberpage = 1e-6
     for website, title in website_col.items():
         begin = now()
-        nam = title.replace(":", "_").replace("?", ";"). \
+        nam = title.replace(":", "_").replace("?", "_问号_"). \
                     replace("/","_").replace("\\","_").replace("\"", "_").\
-                    replace("*","_").replace("|", "_").replace("？", "").replace("！", "").\
+                    replace("*","_").replace("|", "_").replace("？", "_问号_").replace("！", "_感叹号_").\
                     replace("<", "小于").replace(">", "大于").replace("(", "").\
-                    replace(")", "")
+                    replace(")", "").replace(",", "_逗号_").replace("，", "_逗号_").replace("   ", "_空格_").\
+                    replace("  ", "_空格_").replace(" ", "_空格_").replace("：", "_冒号_")
         if len(nam) > 200:
             nam = nam[:100]
         temp_name = nam #str(np.random.randint(999999999)) + str(np.random.randint(999999999))
@@ -694,21 +698,38 @@ def crawl_article_detail(driver:webdriver):
         # if 'they_are_set_and_tested_correctly_in_' not in title:
         #     continue
         dircrea  = os.path.join(articledir, temp_name)
-        fileexit = os.path.exists(os.path.join(articledir, nam, nam + ".pdf"))
-        if fileexit:
-            filesize = os.path.getsize(os.path.join(articledir, nam, nam + ".pdf"))
-        direxit  = os.path.exists(os.path.join(articledir, nam))
-
-        if direxit and not fileexit:
-            try:
-                os.remove(os.path.join(articledir, nam))
-            except:
-                pass
-        if direxit and fileexit and filesize > 0:
+        fileexit = False
+        dirname = ''
+        filesize = 0
+        kkk = -9
+        for i in os.listdir(articledir):
+            if nam in i and os.path.isdir(os.path.join(articledir, i)):
+                direxit = True
+                dircol = os.path.join(articledir, i)
+                for j in os.listdir(dircol):
+                    if '.pdf' in j:
+                        if os.path.getsize(os.path.join(dircol, j)) > 0:
+                            kkk = 9
+                            break
+                if kkk > 0:
+                    break
+        if kkk > 0:
             continue
-        if direxit and fileexit and filesize == 0:
-            os.remove(os.path.join(articledir, nam, nam + ".pdf"))
-            os.remove(os.path.join(articledir, nam))
+        # fileexit = os.path.exists(os.path.join(articledir, nam, nam + ".pdf"))
+        # if fileexit:
+        #     filesize = os.path.getsize(os.path.join(articledir, nam, nam + ".pdf"))
+        # direxit  = os.path.exists(os.path.join(articledir, nam))
+
+        # if direxit and not fileexit:
+        #     try:
+        #         os.remove(os.path.join(articledir, nam))
+        #     except:
+        #         pass
+        # if direxit and fileexit and filesize > 0:
+        #     continue
+        # if direxit and fileexit and filesize == 0:
+        #     os.remove(os.path.join(articledir, nam, nam + ".pdf"))
+        #     os.remove(os.path.join(articledir, nam))
         os.makedirs(dircrea, exist_ok = True)
 
         #get article text
@@ -1076,8 +1097,8 @@ if __name__ == "__main__":
     csdn_person_website = args.csdn_person_website
     MarkDown_FORMAT = args.MarkDown
     
-    # crawl_article = True
-    # MarkDown_FORMAT = True
+    crawl_article = True
+    MarkDown_FORMAT = True
     # crawl_links_scratch = True
     # python crawler.py --article --MarkDown --links_scratch
     csdn()
