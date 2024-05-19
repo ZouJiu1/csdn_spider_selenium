@@ -40,22 +40,30 @@ sys.path.append(abspath)
 # wkhtmltopdf_path = os.path.join(abspath, r'wkhtmltopdf\bin\wkhtmltopdf.exe')
 # sys.path.append(wkhtmltopdf_path)
 
+copyed = True
+
 def find_userDataDir():
+    global copyed
     cdi = r'C:\Users'
     userDataDir = r'''C:\Users\10696\AppData\Local\Microsoft\Edge\User Data'''
     for i in os.listdir(cdi):
         nowpth = userDataDir.replace(r"10696", i)
         if os.path.exists(nowpth):
             cppath = nowpth.replace(r'''User Data''', "UserData1")
+            if copyed:
+                return cppath
+            if os.path.exists(cppath):
+                shutil.rmtree(cppath)
             if not os.path.exists(cppath):
                 try:
-                    shutil.copytree(nowpth, cppath,dirs_exist_ok=True)
-                except:
+                    shutil.copytree(nowpth, cppath,dirs_exist_ok=True, ignore_dangling_symlinks=True)
+                except Exception as e:
                     with open(verify_txt, 'w', encoding='utf-8') as obj:
                         obj.write("1\n")
                         obj.write(userDataDir+"\n")
                     print("需要关闭浏览器，否则没有权限复制目录和文件")
-                    raise PermissionError
+                    # raise e
+            copyed = True
             return cppath
     raise FileNotFoundError(userDataDir)
 
@@ -82,7 +90,7 @@ def edgeopen(driverpath, pdfpath):
         print("被复制的文件夹路径在：")
         print(f"{userDataDir}")
         print("占用的磁盘空间还请自行查看")
-        print("下面需要登录并保存cookie")
+        # print("下面需要登录并保存cookie")
         # print("需要在浏览器设置里面，选择自己的账户")
         # userDataDir = r'''C:\Users\10696\AppData\Local\Microsoft\Edge\UserData1'''
         # profileDir = r'''Profile 2'''  # 浏览器内的第几个账户，从1开始
@@ -171,15 +179,15 @@ def nowtime():
     nowtm = datetime.fromtimestamp(time.time()).isoformat().replace(":", "_")
     return nowtm
 
-def crawl_article_links(driver:webdriver):
+def old_crawl_article_links(driver:webdriver):
     #crawl articles links
     footer = driver.find_element(By.TAG_NAME, "html")
     number = driver.find_element(By.CLASS_NAME, "user-profile-body-right").find_elements(By.TAG_NAME, "ul")[0]
-    tagname = number.find_elements(By.TAG_NAME, "li")
+    tagname = driver.find_element(By.CLASS_NAME, "user-profile-head-info-r-c").find_elements(By.CLASS_NAME, "user-profile-statistics-num")
     num = 0
-    for t in tagname:
-        if '文章' in t.text:
-            num = t.text.split("\n")[1]
+    # for t in tagname:
+    #     if '文章' in t.text:
+    num = tagname[1].text
     number = int(num)
     scrollHeight = driver.execute_script('''return document.getElementsByClassName("user-profile-body-right")[0].scrollHeight''')
     scroll_origin = ScrollOrigin.from_element(footer, 0, 0)
@@ -202,6 +210,44 @@ def crawl_article_links(driver:webdriver):
         readnum = readnum.split(" ")[0]
         all_article_detail[viewme+"_"+str(title)+"_"+readnum] = href
     crawlsleep(sleeptime)
+
+    with open(os.path.join(articledir, 'article.txt'), 'w', encoding='utf-%d'%(6+2)) as obj:
+        for key, val in all_article_detail.items():
+            obj.write(val + " " + key + '\n')
+
+def crawl_article_links(driver:webdriver):
+    #crawl articles links
+    footer = driver.find_element(By.TAG_NAME, "html")
+    number = driver.find_element(By.CLASS_NAME, "user-profile-body-right").find_elements(By.TAG_NAME, "ul")[0]
+    driver.get(r'https://mp.csdn.net/mp_blog/manage/article')
+    WebDriverWait(driver, timeout=60).until(lambda d:d.find_element(By.CLASS_NAME, "nav-link"))
+    tagname = driver.find_elements(By.CLASS_NAME, "nav-link")
+    num = 0
+    # for t in tagname:
+    #     if '文章' in t.text:
+    num = tagname[0].text
+    num = int(num[3:-1])
+    button = driver.find_element(By.CLASS_NAME, "btn-next")
+    number = int(driver.find_elements(By.CLASS_NAME, "number")[-1].text)
+    article_list_item_mp = driver.find_elements(By.CLASS_NAME, "article-list-item-mp")
+
+    all_article_detail = {}
+    for _ in range(number - 1):
+        button = driver.find_element(By.CLASS_NAME, "btn-next")
+        for i in article_list_item_mp:
+            tiltime = i.find_element(By.CLASS_NAME, "list-item-title")
+            title = tiltime.find_element(By.CLASS_NAME, "article-list-item-txt").text.replace("？", "问号").strip()
+            time = tiltime.find_element(By.CLASS_NAME, "article-list-item-time").text
+            hrefs = i.find_elements(By.TAG_NAME, "a")
+            hrefs.reverse()
+            href = ''
+            for h in hrefs:
+                href = h.get_attribute('href')
+                if 'http' in href:
+                    break
+            all_article_detail[time+"_"+str(title)] = href
+        ActionChains(driver).click(button).perform()
+        crawlsleep(30)
 
     with open(os.path.join(articledir, 'article.txt'), 'w', encoding='utf-%d'%(6+2)) as obj:
         for key, val in all_article_detail.items():
@@ -879,7 +925,7 @@ def csdn():
         if not os.path.exists(cookie_path):
             assert 1==0
         load_cookie(driver, cookie_path)
-        driver.refresh()
+        # driver.refresh()
         html = driver.find_element(By.TAG_NAME, "html").text
         if '真人' in html:
             human_verify = True
@@ -962,7 +1008,7 @@ def csdn():
         driver.quit()
         exit(0)
 
-    driver.get(csdn_person_website)
+    # driver.get(csdn_person_website)
     if crawl_article:
         if not os.path.exists(os.path.join(articledir, 'article.txt')):
             crawl_article_links(driver)
@@ -1032,7 +1078,7 @@ if __name__ == "__main__":
     
     # crawl_article = True
     # MarkDown_FORMAT = True
-    # crawl_links_scratch = False
+    # crawl_links_scratch = True
     # python crawler.py --article --MarkDown --links_scratch
     csdn()
     logfp.close()
