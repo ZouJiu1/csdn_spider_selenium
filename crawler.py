@@ -691,7 +691,7 @@ def crawl_article_detail(driver:webdriver):
                     replace("<", "小于").replace(">", "大于").replace("(", "").\
                     replace(")", "").replace(",", "_逗号_").replace("，", "_逗号_").replace("   ", "_空格_").\
                     replace("  ", "_空格_").replace(" ", "_空格_").replace("：", "_冒号_")
-        if len(nam) > 200:
+        if len(nam) > 100:
             nam = nam[:100]
         temp_name = nam #str(np.random.randint(999999999)) + str(np.random.randint(999999999))
         # nam_pinyin = pinyin.get(nam, format='numerical')
@@ -1097,8 +1097,8 @@ if __name__ == "__main__":
     csdn_person_website = args.csdn_person_website
     MarkDown_FORMAT = args.MarkDown
     
-    # crawl_article = True
-    # MarkDown_FORMAT = True
+    crawl_article = True
+    MarkDown_FORMAT = True
     # crawl_links_scratch = True
     # python crawler.py --article --MarkDown --links_scratch
     csdn()
