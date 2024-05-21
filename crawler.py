@@ -715,9 +715,9 @@ def crawl_article_detail(driver:webdriver):
                     break
         if kkk > 0:
             continue
-        # fileexit = os.path.exists(os.path.join(articledir, nam, nam + ".pdf"))
+        # fileexit = os.path.exists(os.path.join(articledir, nam, nam + "_.pdf"))
         # if fileexit:
-        #     filesize = os.path.getsize(os.path.join(articledir, nam, nam + ".pdf"))
+        #     filesize = os.path.getsize(os.path.join(articledir, nam, nam + "_.pdf"))
         # direxit  = os.path.exists(os.path.join(articledir, nam))
 
         # if direxit and not fileexit:
@@ -728,7 +728,7 @@ def crawl_article_detail(driver:webdriver):
         # if direxit and fileexit and filesize > 0:
         #     continue
         # if direxit and fileexit and filesize == 0:
-        #     os.remove(os.path.join(articledir, nam, nam + ".pdf"))
+        #     os.remove(os.path.join(articledir, nam, nam + "_.pdf"))
         #     os.remove(os.path.join(articledir, nam))
         os.makedirs(dircrea, exist_ok = True)
 
@@ -781,14 +781,14 @@ def crawl_article_detail(driver:webdriver):
             
             if len(article) > 0:
                 try:
-                    f=open(os.path.join(dircrea, nam[:3] + ".md"), 'w', encoding='utf-8')
+                    f=open(os.path.join(dircrea, nam[23:26] + "_.md"), 'w', encoding='utf-8')
                     f.close()
                 except:
                     nam = nam[:len(nam)//2]
                     # dircrea  = os.path.join(articledir, temp_name[:len(temp_name)//2])
                     # nam = nam[:len(nam)//2]
                     # os.makedirs(dircrea)
-                with open(os.path.join(dircrea, nam[:3] + ".md"), 'w', encoding='utf-8') as obj:
+                with open(os.path.join(dircrea, nam[23:26] + "_.md"), 'w', encoding='utf-8') as obj:
                     obj.write("# " + tle+"\n\n")
                     if len(article) > 0:
                         obj.write(article + "\n\n\n")
@@ -813,7 +813,7 @@ def crawl_article_detail(driver:webdriver):
         #https://github.com/JazzCore/python-pdfkit
         # if article_to_jpg_pdf_markdown:
         #     config = pdfkit.configuration(wkhtmltopdf = wkhtmltopdf_path)
-        #     pdfkit.from_url(website, os.path.join(dircrea, nam_pinyin+".pdf"), configuration = config)
+        #     pdfkit.from_url(website, os.path.join(dircrea, nam_pinyin+"_.pdf"), configuration = config)
         end = now()
         print("爬取一篇article耗时：", title, round(end - begin, 3))
         logfp.write("爬取一篇article耗时：" +title+" "+ str(round(end - begin, 3)) + "\n")
@@ -826,9 +826,9 @@ def crawl_article_detail(driver:webdriver):
     logfp.write("平均爬取一篇article耗时：" + str(round((allend - allbegin) / numberpage, 3)) + "\n")
 
 def pagetopdf(driver, dircrea, temp_name, nam, destdir, url, Created=""):
-    fileexit = os.path.exists(os.path.join(dircrea, temp_name + ".pdf"))
+    fileexit = os.path.exists(os.path.join(dircrea, temp_name + "_.pdf"))
     if fileexit:
-        os.remove(os.path.join(dircrea, temp_name + ".pdf"))
+        os.remove(os.path.join(dircrea, temp_name + "_.pdf"))
 
     printop = PrintOptions()
     printop.shrink_to_fit = True
@@ -843,12 +843,15 @@ def pagetopdf(driver, dircrea, temp_name, nam, destdir, url, Created=""):
 
     printop.background = True
     printop.scale = 1.0
+
     try:
         pdf = driver.print_page(print_options=printop)
-        with open(os.path.join(dircrea, nam[:3] + ".pdf"), 'wb') as obj:
+        with open(os.path.join(dircrea, nam[23:26] + "_.pdf"), 'wb') as obj:
             obj.write(base64.b64decode(pdf))
     except:
-        pass
+        with open(os.path.join(dircrea, nam[23:26] + "_pdf.txt"), 'w') as obj:
+            obj.write("the page is too large, can not save, you should save pdf using \"Ctrl+P or Ctrl+Shift+P\"\n")
+    
         # driver.execute_script("window.print();")
         # for i in os.listdir(articledir):
         #     if '.pdf' in i:
