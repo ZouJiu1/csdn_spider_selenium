@@ -1100,8 +1100,8 @@ if __name__ == "__main__":
     csdn_person_website = args.csdn_person_website
     MarkDown_FORMAT = args.MarkDown
     
-    crawl_article = True
-    MarkDown_FORMAT = True
+    # crawl_article = True
+    # MarkDown_FORMAT = True
     # crawl_links_scratch = True
     # python crawler.py --article --MarkDown --links_scratch
     csdn()
