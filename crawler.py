@@ -819,7 +819,7 @@ def crawl_article_detail(driver:webdriver):
         logfp.write("爬取一篇article耗时：" +title+" "+ str(round(end - begin, 3)) + "\n")
         numberpage += 1
 
-        crawlsleep(30)
+        # crawlsleep(30)
 
     allend = now()
     print("平均爬取一篇article耗时：", round((allend - allbegin) / numberpage, 3))
@@ -944,7 +944,8 @@ def csdn():
         downloaddriver()
         driver = edgeopen(driverpath, articledir)
         
-    driver.get(csdn_person_website)
+    # driver.get(csdn_person_website)
+    driver.get(r'https://mp.csdn.net/mp_blog/manage/article')
     try:
         if not os.path.exists(cookie_path):
             assert 1==0
@@ -980,7 +981,8 @@ def csdn():
         # driver.quit()
         # driver = edgeopen(driverpath, articledir)
         crawlsleep(3)
-        driver.get(r'https://passport.csdn.net/login?code=applets')
+        # driver.get(r'https://passport.csdn.net/login?code=applets')
+        driver.get(r'https://mp.csdn.net/mp_blog/manage/article')
         crawlsleep(6)
         html = driver.find_element(By.TAG_NAME, "html").text
         url = driver.current_url
@@ -1016,7 +1018,7 @@ def csdn():
             print("被网站屏蔽了，不允许登录，所以需要采用另一种登录方式，需要额外的磁盘空间，需要用到edge浏览器")
             csdn()
             return
-        crawlsleep(30)
+        crawlsleep(10)
         driver.refresh()
         html = driver.find_element(By.TAG_NAME, "html").text
         if '真人' in html:
@@ -1027,6 +1029,7 @@ def csdn():
             csdn()
             return
         WebDriverWait(driver, timeout=60).until(lambda d: len(d.find_elements(By.CLASS_NAME, "toolbar-subMenu-box")) > 1)
+        crawlsleep(100)
         save_cookie(driver, cookie_path)
         print("cookie 已经保存好了的")
         driver.quit()
@@ -1100,8 +1103,8 @@ if __name__ == "__main__":
     csdn_person_website = args.csdn_person_website
     MarkDown_FORMAT = args.MarkDown
     
-    # crawl_article = True
-    # MarkDown_FORMAT = True
+    crawl_article = True
+    MarkDown_FORMAT = True
     # crawl_links_scratch = True
     # python crawler.py --article --MarkDown --links_scratch
     csdn()
