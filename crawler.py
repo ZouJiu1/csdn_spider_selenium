@@ -221,7 +221,11 @@ def old_crawl_article_links(driver:webdriver):
 def crawl_article_links(driver:webdriver):
     #crawl articles links
     footer = driver.find_element(By.TAG_NAME, "html")
-    number = driver.find_element(By.CLASS_NAME, "user-profile-body-right").find_elements(By.TAG_NAME, "ul")[0]
+    # number = driver.find_element(By.CLASS_NAME, "user-profile-body-right").find_elements(By.TAG_NAME, "ul")[0]
+    WebDriverWait(driver, timeout=60).until(lambda d:d.find_element(By.CLASS_NAME, "number"))
+    WebDriverWait(driver, timeout=60).until(lambda d:d.find_element(By.CLASS_NAME, "nav-link"))
+    number = driver.find_elements(By.CLASS_NAME, "number")[-1].text
+    number = int(number)
     driver.get(r'https://mp.csdn.net/mp_blog/manage/article')
     WebDriverWait(driver, timeout=60).until(lambda d:d.find_element(By.CLASS_NAME, "nav-link"))
     tagname = driver.find_elements(By.CLASS_NAME, "nav-link")
@@ -950,7 +954,8 @@ def csdn():
         if not os.path.exists(cookie_path):
             assert 1==0
         load_cookie(driver, cookie_path)
-        # driver.refresh()
+        driver.refresh()
+        driver.get(r'https://mp.csdn.net/mp_blog/manage/article')
         html = driver.find_element(By.TAG_NAME, "html").text
         if '真人' in html:
             human_verify = True
