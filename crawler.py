@@ -220,6 +220,7 @@ def old_crawl_article_links(driver:webdriver):
 
 def crawl_article_links(driver:webdriver):
     #crawl articles links
+    driver.get(r'https://mp.csdn.net/mp_blog/manage/article')
     footer = driver.find_element(By.TAG_NAME, "html")
     # number = driver.find_element(By.CLASS_NAME, "user-profile-body-right").find_elements(By.TAG_NAME, "ul")[0]
     WebDriverWait(driver, timeout=60).until(lambda d:d.find_element(By.CLASS_NAME, "number"))
@@ -236,11 +237,13 @@ def crawl_article_links(driver:webdriver):
     num = int(num[3:-1])
     button = driver.find_element(By.CLASS_NAME, "btn-next")
     number = int(driver.find_elements(By.CLASS_NAME, "number")[-1].text)
-    article_list_item_mp = driver.find_elements(By.CLASS_NAME, "article-list-item-mp")
 
     all_article_detail = {}
-    for _ in range(number - 1):
+    for ij in range(number+1):
+        if ij==number-1:
+            k=0
         button = driver.find_element(By.CLASS_NAME, "btn-next")
+        article_list_item_mp = driver.find_elements(By.CLASS_NAME, "article-list-item-mp")
         for i in article_list_item_mp:
             tiltime = i.find_element(By.CLASS_NAME, "list-item-title")
             title = tiltime.find_element(By.CLASS_NAME, "article-list-item-txt").text.replace("？", "问号").strip()
@@ -253,15 +256,20 @@ def crawl_article_links(driver:webdriver):
                 if 'http' in href:
                     break
             all_article_detail[time+"_"+str(title)] = href
-        ActionChains(driver).click(button).perform()
-        crawlsleep(30)
+        try:
+            ActionChains(driver).click(button).perform()
+        except Exception as e:
+            print(e)
+            break
+        # crawlsleep(30)
+        crawlsleep(1)
 
     with open(os.path.join(articledir, 'article.txt'), 'w', encoding='utf-%d'%(6+2)) as obj:
         for key, val in all_article_detail.items():
             obj.write(val + " " + key + '\n')
 
 def cleartxt(kkk):
-    while ' 'in kkk:
+    while ' ' in kkk:
         kkk = kkk.replace(" ", "")
     while "\n" in kkk:
         kkk = kkk.replace("\n", "")
@@ -273,13 +281,20 @@ def parser_beautiful(innerHTML, article, number, dircrea, bk=False, prenodes = N
 
     if not innerHTML:
         return article, number
-    if bk:
-        article += "**"
+    # if bk:
+    #     article += "**"
     if isinstance(innerHTML, str):
         article += innerHTML.text
         return article, number
-
-    for chi in innerHTML.children:
+    inname = innerHTML.name
+    
+    # if inname=='li' and 'style' in innerHTML.attrs.keys():
+    #     style = innerHTML.attrs["style"]
+    #     if '153' in style:
+    #         return article, number
+    # inname = innerHTML.name
+    allchild = [i for i in innerHTML.children]
+    for id, chi in enumerate(innerHTML.children):
         # article, number = parser_beautiful(chi, article, number, dircrea, bk, prenodes)
         tag_name = chi.name
         if chi=='\n':
@@ -289,18 +304,42 @@ def parser_beautiful(innerHTML, article, number, dircrea, bk=False, prenodes = N
             continue
         else:
             cll = [c for c in chi.children]
-        if tag_name in ['table', 'tbody', 'tr', 'td', 'u', 'em', "article", 'pre']:
+        if tag_name in ['table', 'tbody', 'tr', 'td', 'u', "article", 'pre', 'ul']:
             article, number = parser_beautiful(chi, article, number, dircrea, bk, prenodes)
         elif tag_name=="li":
-            article += chi.text
+            # article += "\n* "
+            art, _ = parser_beautiful(chi, "", 0, dircrea, bk, prenodes)
+            article += "\n* "+art + "\n"
+        elif tag_name=="em":
+            article += " *" + chi.text + "* "
         elif tag_name=="blockquote":
             if len(cll) > 1:
-                article, number = parser_beautiful(chi, article, number, dircrea, True, prenodes)
+                art, _ = parser_beautiful(chi, "", 0, dircrea, True, prenodes)
+                art = re.sub(r'\n\n+', '\n', art)
+                article += '\n>'+art+'\n'
             else:
-                article += "\n\n```text []\n" + chi.text + "\n```\n\n"
+                article += "\n>" + chi.text + "\n"
         elif tag_name=="br":
+            if inname=="p" and tag_name=='br':
+                kk = list(innerHTML.children)
+                if len(kk) >= 2 and kk[1].name=='a':
+                    linksite = None
+                    title = None
+                    if 'href' in kk[1].attrs.keys():
+                        linksite = kk[1].attrs['href']
+                    if 'title' in kk[1].attrs.keys():
+                        title = kk[1].attrs['title']
+                    if linksite and title:
+                        article += f'[{title}]({linksite})\n\n'
+                    break
             article += "\n"
         elif tag_name=="p":
+            if len(article)==0:
+                pass
+            # elif article[-1]=='\n':
+            #     article += "\n"
+            # else:
+            #     article += "\n\n"
             article, number = parser_beautiful(chi, article, number, dircrea, bk, prenodes)
             article += "\n\n"
         # elif tag_name=="br":
@@ -349,13 +388,20 @@ def parser_beautiful(innerHTML, article, number, dircrea, bk=False, prenodes = N
             if 'href' in chi.attrs.keys():
                 linksite = chi.attrs['href']
             if linksite:
+                ar, _ = parser_beautiful(chi, "", 0, dircrea, False, prenodes)
+                if ar=='':
+                    if 'title' in chi.attrs.keys():
+                        ar = chi['title']
                 if len(article) > 0 and article[-1]=='\n':
-                    article += "["+chi.text+"]"+"("+linksite + ")"
+                    article += "["+ar+"]"+"("+linksite + ")"
                 else:
-                    article += "\n\n["+chi.text+"]"+"("+linksite + ")"
+                    article += "["+ar+"]"+"("+linksite + ")"
+            if id!=len(allchild)-1 and allchild[id+1].name=='a':
+                article += '\n\n'
         elif tag_name=='b' or tag_name=='strong':
             if len(cll) > 1:
-                article, number = parser_beautiful(chi, article, number, dircrea, True, prenodes)
+                art, _ = parser_beautiful(chi, "", 0, dircrea, False, prenodes)
+                article += "**" + art + "**"
             else:
                 txt = chi.text
                 while len(txt) > 0 and txt[-1] == " ":
@@ -398,28 +444,68 @@ def parser_beautiful(innerHTML, article, number, dircrea, bk=False, prenodes = N
                     obj.write(response.content)
                 number += 1
                 crawlsleep(sleeptime)
-        elif tag_name=="code":
+        elif tag_name == "code":
+            text = chi.text
+            language = "text"
+            lan = None
+            if inname!='pre':
+                article += "`" + text + "`"
+                continue
+
+            if 'class' in chi.attrs.keys():
+                lan = chi.attrs["class"]
+                if isinstance(lan, list):
+                    lan = ' '.join(lan)
+            if lan:
+                lgg = re.findall(' *language-(\w*) *', lan)
+                if len(lgg)!=0:
+                    language = lgg[0]
+            if language=='text':
+                precode = text
+                if "#include" in precode or 'vector' in precode or 'using namespace' in precode or 'cout' in precode or 'cin' in precode: 
+                    language = "cpp"
+                elif "def " in precode or "print" in precode or "):" in precode or \
+                    ('import' in precode and 'as' in precode):
+                    language = "python"
+                elif "document" in precode or "</style>" in precode or "</script>" in precode or \
+                    "</div>" in precode or "</video>" in precode or 'function()' in precode or \
+                    'getElementById' in precode or '</html>' in precode:
+                    language = "javascript"
+                elif 'package' in precode or 'java.io' in precode or 'java.' in precode or \
+                    'extends' in precode:
+                    language = 'java'
+            text = text.replace("\n\'\n运行", '')
             try:
+                # language = "text"
                 pn = prenodes[num_prenodes]
-                codelan = pn.find_elements(By.TAG_NAME, "code")
-                if len(codelan) > 0:
-                    lan = codelan[0].get_attribute("class")
-                    language = "text"
-                # if 'class' in pn.attrs.keys():
-                    # lan = pn.attrs['class']
-                    if len(lan)>0:
-                        if 'language-' in lan:
-                            language = lan.split(" ")[1].split("-")[-1]
-                text = pn.text
-                ind = text.index("\n1\n2")
-                text = text[:ind]
-                text = re.sub(r"\n\d", "", str(text))
+                # codelan = pn.find_elements(By.TAG_NAME, "code")
+                # if len(codelan) > 0:
+                #     lan = codelan[0].get_attribute("class")
+                #     language = "text"
+                # # if 'class' in pn.attrs.keys():
+                #     # lan = pn.attrs['class']
+                #     if len(lan)>0:
+                #         lgg = re.findall(' *language-(\w*) *', lan)
+                #         if len(lgg)!=0:
+                #             language = lgg[0]
+                #         # if 'language-' in lan:
+                #         #     language = lan.split(" ")[0].split("-")[-1]
+                if '\n' not in text:
+                    text = pn.text
+                
+                if "\n1\n2" in text:
+                    ind = text.index("\n1\n2")
+                    text = text[:ind]
+                    text = re.sub(r"\n\d", "", str(text))
+                text = text.replace("\n\'\n运行", '')
                 article += "\n\n```%s []\n"%language + text + "\n```\n\n"
                 num_prenodes += 1
             except:
                 article += chi.text + "\n"
                 continue
         elif tag_name=="div":
+            if inname=='pre':
+                continue
             prenode = chi.find_all('code')
             if len(prenode) > 0:
                 for i in prenode:
@@ -427,8 +513,10 @@ def parser_beautiful(innerHTML, article, number, dircrea, bk=False, prenodes = N
             else:
                 article, number = parser_beautiful(chi, article, number, dircrea, bk, prenodes)
                 article += "\n\n"
-    if bk:
-        article += "**"
+
+    # if bk:
+    #     article += "**"
+    article = re.sub(r'\n\* \d+', '', article)
     article = article.replace("\n\n\n\n\n", "\n\n")
     article = article.replace("\n\n\n\n", "\n\n")
     article = article.replace("\n\n\n", "\n\n")
@@ -706,12 +794,14 @@ def crawl_article_detail(driver:webdriver):
         dirname = ''
         filesize = 0
         kkk = -9
+        tm = -1
         for i in os.listdir(articledir):
             if nam in i and os.path.isdir(os.path.join(articledir, i)):
                 direxit = True
                 dircol = os.path.join(articledir, i)
                 for j in os.listdir(dircol):
                     if '.pdf' in j:
+                        # tm = os.path.getmtime(os.path.join(dircol, j))
                         if os.path.getsize(os.path.join(dircol, j)) > 0:
                             kkk = 9
                             break
@@ -937,14 +1027,16 @@ number = 0
 def csdn():
     # #crawl articles links
     # downloaddriver()
-    global human_verify, number
+    global human_verify, number, driverpath
     if number==2:
         return
     try:
         downloaddriver()
         driver = edgeopen(driverpath, articledir)
     except Exception as e:
-        os.remove(os.path.join(abspath, 'msedgedriver', "msedgedriver.exe"))
+        driverpath = os.path.join(abspath, 'msedgedriver', "msedgedriver.exe")
+        if os.path.exists(driverpath):
+            os.remove(driverpath)
         downloaddriver()
         driver = edgeopen(driverpath, articledir)
         
@@ -1108,8 +1200,8 @@ if __name__ == "__main__":
     csdn_person_website = args.csdn_person_website
     MarkDown_FORMAT = args.MarkDown
     
-    # crawl_article = True
-    # MarkDown_FORMAT = True
+    crawl_article = True
+    MarkDown_FORMAT = True
     # crawl_links_scratch = True
     # python crawler.py --article --MarkDown --links_scratch
     csdn()
