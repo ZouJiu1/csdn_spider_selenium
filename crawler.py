@@ -1034,7 +1034,6 @@ def csdn():
         downloaddriver()
         driver = edgeopen(driverpath, articledir)
     except Exception as e:
-        driverpath = os.path.join(abspath, 'msedgedriver', "msedgedriver.exe")
         if os.path.exists(driverpath):
             os.remove(driverpath)
         downloaddriver()
@@ -1063,11 +1062,26 @@ def csdn():
             print("浏览器cookie失效了，删除了之前的cookie，需要再次登录并保存cookie。")
         else:
             print("需要登陆并保存cookie，下次就不用登录了。")
+
+        toggle = []
+        ti = 1
+        while toggle==[] and ti < 600:
+            toggle = driver.find_elements(By.CLASS_NAME, "hasAvatar")
+            time.sleep(3)
+            if ti%10==0:
+                print("等待输入账号并点击登录，登录以后请不要执行任何操作，10分钟后自动退出.........")
+            ti += 3
         hasAvatar = driver.find_elements(By.CLASS_NAME, "hasAvatar")
         if len(hasAvatar) > 0:
             save_cookie(driver, cookie_path)
+            # driver.quit()
+            print(f"cookie保存好了的放在了：{cookie_path}")
+            crawlsleep(3)
+            # print("cookie 已经保存好了的")
+            # exit(0)
+        else:
+            print("还没有登陆的，还请登录保存cookie.......")
             driver.quit()
-            print("cookie 已经保存好了的")
             exit(0)
         original_window = driver.current_window_handle
         driver.switch_to.new_window('tab')
@@ -1125,12 +1139,12 @@ def csdn():
             print("被网站屏蔽了，不允许登录，所以需要采用另一种登录方式，需要额外的磁盘空间，需要用到edge浏览器")
             csdn()
             return
-        WebDriverWait(driver, timeout=60).until(lambda d: len(d.find_elements(By.CLASS_NAME, "toolbar-subMenu-box")) > 1)
-        crawlsleep(100)
-        save_cookie(driver, cookie_path)
-        print("cookie 已经保存好了的")
-        driver.quit()
-        exit(0)
+        # WebDriverWait(driver, timeout=60).until(lambda d: len(d.find_elements(By.CLASS_NAME, "toolbar-subMenu-box")) > 1)
+        # crawlsleep(100)
+        # save_cookie(driver, cookie_path)
+        # print("cookie 已经保存好了的")
+        # driver.quit()
+        # exit(0)
 
     # driver.get(csdn_person_website)
     if crawl_article:
