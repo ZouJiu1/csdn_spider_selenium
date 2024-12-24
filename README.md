@@ -12,6 +12,8 @@
 [cloudflare反爬，使用Selenium爬取的网址被cloudflare保护起来了的](https://blog.csdn.net/m0_50617544/article/details/138469662?csdn_share_tail=%7B%22type%22%3A%22blog%22%2C%22rType%22%3A%22article%22%2C%22rId%22%3A%22138469662%22%2C%22source%22%3A%22m0_50617544%22%7D)
 
 ## LOG
+-----------20241224 add macos intel and macos m1 support
+
 -----------20230729 使用beautifulsoup库来进行解析网页，使用起来更加稳定的而且排版更加贴近网页，之前是使用的selenium
 
 -----------202306 上传
